@@ -1,19 +1,11 @@
 import React from 'react'
-import {StyleSheet, Text, View, Button} from 'react-native'
+import {Text, View, Button} from 'react-native'
 import Draggable from 'react-native-draggable'
 import {Actions} from 'react-native-router-flux'
 import _ from 'lodash/fp'
+import styles from './styles'
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-})
-
-export default class App extends React.Component {
+export default class Circles extends React.Component {
   state = {
     circles: [
       {
@@ -27,7 +19,7 @@ export default class App extends React.Component {
     ],
   }
 
-  getLayout = ({nativeEvent: {layout}}) => this.setState({layout})
+  // getLayout = ({nativeEvent: {layout}}) => this.setState({layout})
 
   addCircle = newCircle => this.setState({circles: [...this.state.circles, newCircle]})
 

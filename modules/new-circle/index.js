@@ -1,5 +1,6 @@
 import React from 'react'
-import {Text, View, Button} from 'react-native'
+import {Text, View, Button, TextInput} from 'react-native'
+import _ from 'lodash/fp'
 import styles from './styles'
 import SectionedMultiSelect from 'react-native-sectioned-multi-select'
 import colors from '../../utils/colors'
@@ -28,45 +29,65 @@ export default class NewCircle extends React.Component {
   state = {
     addedFriends: [],
     color: colors[0],
+    name: '',
   }
 
-  onSelectedItemsChange = addedFriends => this.setState({addedFriends})
+  selectMates = addedFriends => this.setState({addedFriends})
 
-  createCircle = () => {}
+  selectColor = color => console.log(color) || this.setState({color})
+
+  colorList = colors.map(color => ({
+    color,
+  }))
+
+  createCircle = _.noop
 
   renderItem = ({item}) => <Text>{item.key}</Text>
 
+  renderNameInput = () => (
+    <TextInput
+      style={styles.nameInput}
+      placeholder="e.g. DnD crew"
+      onChangeText={name => this.setState({name})}
+      value={this.state.name}
+    />
+  )
+
   render() {
-    const {addedFriends} = this.state
+    const {addedFriends, color} = this.state
     return (
       <View style={styles.container}>
-        <View style={styles.selectContainer}>
-          <View style={styles.selectMates}>
-            <SectionedMultiSelect
-              items={FRIEND_LIST}
-              styles={{selectedItemText: {color: 'red'}}}
-              uniqueKey="id"
-              subKey="chil`dren"
-              selectText="Add some mates"
-              showDropDowns
-              showCancelButton
-              onSelectedItemsChange={this.onSelectedItemsChange}
-              selectedItems={addedFriends}
-            />
-          </View>
-          <View style={styles.selectColor}>
-            <SectionedMultiSelect
-              items={FRIEND_LIST}
-              styles={{selectedItemText: {color: 'red'}}}
-              uniqueKey="id"
-              subKey="children"
-              selectText="Add some mates"
-              showDropDowns
-              showCancelButton
-              onSelectedItemsChange={this.onSelectedItemsChange}
-              selectedItems={addedFriends}
-            />
-          </View>
+        <View style={styles.inputContainer}>
+          <Text>Circle name</Text>
+          {this.renderNameInput()}
+        </View>
+        <View style={styles.inputContainer}>
+          <SectionedMultiSelect
+            items={this.colorList}
+            styles={{selectedItemText: {color: 'red'}}}
+            uniqueKey="color"
+            displayKey="color"
+            single
+            subKey="children"
+            selectText="Choose circle color"
+            showDropDowns
+            showCancelButton
+            onSelectedItemsChange={this.selectColor}
+            selectedItems={color}
+          />
+        </View>
+        <View style={styles.inputContainer}>
+          <SectionedMultiSelect
+            items={FRIEND_LIST}
+            styles={{selectedItemText: {color: 'red'}}}
+            uniqueKey="id"
+            subKey="children"
+            selectText="Add some mates"
+            showDropDowns
+            showCancelButton
+            onSelectedItemsChange={this.selectMates}
+            selectedItems={addedFriends}
+          />
         </View>
         <View style={styles.buttonContainer}>
           <Button title="DONE" onPress={this.createCircle} />

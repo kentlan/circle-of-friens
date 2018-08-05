@@ -28,7 +28,6 @@ export default class App extends React.Component {
             key="newCircle"
             component={NewCircle}
             title="New Circle"
-            onRight={console.log}
             // rightButtonImage={require('path/to/your/icon')}
           />
         </Stack>

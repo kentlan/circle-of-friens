@@ -1,5 +1,6 @@
 import React from 'react'
 import {Scene, Router, Stack, Actions} from 'react-native-router-flux'
+import {auth} from './config/firebase'
 import Start from './modules/start'
 import Login from './modules/login'
 import Circles from './modules/circles'
@@ -26,7 +27,9 @@ export default class App extends React.Component {
             component={Circles}
             title="Circles"
             onRight={() => Actions.push('newCircle')}
+            onLeft={() => auth.signOut()}
             rightTitle="+"
+            leftTitle="Log out"
             // rightButtonImage={require('path/to/your/icon')}
           />
           <Scene

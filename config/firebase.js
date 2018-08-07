@@ -30,6 +30,8 @@ export const facebookLogin = async () => {
   if (type === 'success') {
     const credential = firebase.auth.FacebookAuthProvider.credential(token)
     firebase.auth().signInAndRetrieveDataWithCredential(credential)
+    console.log(credential)
+    return token
     // .then(hui => console.log('hui', hui))
   }
   return null

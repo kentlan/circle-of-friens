@@ -1,6 +1,7 @@
 import React from 'react'
 import {Text, View, Button, TextInput} from 'react-native'
 import _ from 'lodash/fp'
+import {auth} from '../../config/firebase'
 import styles from './styles'
 import SectionedMultiSelect from 'react-native-sectioned-multi-select'
 import colors from '../../utils/colors'
@@ -30,6 +31,10 @@ export default class NewCircle extends React.Component {
     addedFriends: [],
     color: colors[0],
     name: '',
+  }
+
+  componentDidMount() {
+    console.log(auth.currentUser)
   }
 
   selectMates = addedFriends => this.setState({addedFriends})
@@ -73,7 +78,7 @@ export default class NewCircle extends React.Component {
             showDropDowns
             showCancelButton
             onSelectedItemsChange={this.selectColor}
-            selectedItems={color}
+            selectedItems={[color]}
           />
         </View>
         <View style={styles.inputContainer}>

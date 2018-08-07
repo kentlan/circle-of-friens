@@ -1,7 +1,8 @@
 import React from 'react'
 import {Scene, Router, Stack, Actions} from 'react-native-router-flux'
-import Circles from './modules/circles'
+import Start from './modules/start'
 import Login from './modules/login'
+import Circles from './modules/circles'
 import NewCircle from './modules/new-circle'
 
 export default class App extends React.Component {
@@ -10,6 +11,11 @@ export default class App extends React.Component {
     return (
       <Router>
         <Stack key="root">
+          <Scene
+            key="start"
+            component={Start}
+            title="Start"
+          />
           <Scene
             key="login"
             component={Login}

@@ -5,4 +5,4 @@ export const FIREBASE_PROJECT_ID = 'circle-of-friends-26cca'
 export const FIREBASE_STORAGE_BUCKET = 'circle-of-friends-26cca.appspot.com'
 export const FIREBASE_MESSAGING_SENDER_ID = '971597508083'
 
-export const FACEBOOK_APP_ID = '1094496300703576'
+export const FACEBOOK_APP_ID = '252267945388562'

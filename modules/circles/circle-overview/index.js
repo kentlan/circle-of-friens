@@ -5,7 +5,7 @@ import styles from './styles'
 
 const NOT_BUSY = true
 
-export default class Circle extends React.Component {
+export default class CircleOverview extends React.Component {
   state = {
     circles: [
       {

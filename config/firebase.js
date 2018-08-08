@@ -2,6 +2,8 @@ import * as firebase from 'firebase'
 import Expo from 'expo'
 import * as c from './constants'
 
+/* eslint-disable no-console */
+
 const config = {
   apiKey: c.FIREBASE_API_KEY,
   authDomain: c.FIREBASE_AUTH_DOMAIN,
@@ -18,9 +20,8 @@ export const auth = firebase.auth()
 export const provider = new firebase.auth.FacebookAuthProvider()
 provider.addScope('user_friends').addScope('email')
 export const storage = firebase.storage()
-export const queueRef = database.ref('/queue/')
-export const gamesRef = database.ref('/games/')
-export const userListRef = database.ref('/userList/')
+export const usersRef = database.ref('/users/')
+export const circlesRef = database.ref('/circles/')
 
 export const facebookLogin = async () => {
   const {type, token} = await Expo.Facebook.logInWithReadPermissionsAsync(
@@ -30,13 +31,13 @@ export const facebookLogin = async () => {
   if (type === 'success') {
     const credential = firebase.auth.FacebookAuthProvider.credential(token)
     firebase.auth().signInAndRetrieveDataWithCredential(credential)
-    console.log(credential)
-    return token
+      .then(({user: {uid}}) => usersRef.child(uid).update({accessToken: token}))
+      .catch(console.error)
+    // usersRef.update
     // .then(hui => console.log('hui', hui))
   }
   return null
 }
 
-/* eslint-disable no-console */
 export const signIn = () =>
   auth.signInAnonymously().catch(error => console.error(error))

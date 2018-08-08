@@ -1,63 +1,79 @@
 import React from 'react'
 import {Text, View, Button} from 'react-native'
-import Draggable from 'react-native-draggable'
 import {Actions} from 'react-native-router-flux'
-import _ from 'lodash/fp'
 import styles from './styles'
+import {auth, usersRef, circlesRef} from '../../config/firebase'
+import Circle from './circle'
 
 export default class Circles extends React.Component {
-  state = {
-    circles: [
-      {
-        title: 'test circle',
-        color: 'black',
-        members: [
-          '322',
-          '228',
-        ],
-      },
-    ],
+  state = {}
+
+  componentDidMount() {
+    usersRef.child(`${auth.currentUser.uid}/circles`).on('value', (userCirclesSnapshot) => {
+      const userCircles = userCirclesSnapshot.val()
+      if (!userCircles) {
+        return
+      }
+      circlesRef.once('value', (circlesSnapshot) => {
+        const circlesToRender = Object.keys(userCircles).map(circleId => ({
+          x: userCircles[circleId].x || 0,
+          y: userCircles[circleId].y || 0,
+          ...circlesSnapshot.val()[circleId],
+          circleId,
+        }))
+        this.setState({circlesToRender})
+      })
+    })
+  }
+
+  componentWillUnmount() {
+    usersRef.off('value')
   }
 
   // getLayout = ({nativeEvent: {layout}}) => this.setState({layout})
 
   addCircle = newCircle => this.setState({circles: [...this.state.circles, newCircle]})
 
-  renderCircles = () => _.map(
-    ({title, color}) => (
-      <Draggable
-        pressDragRelease={(event, props) => console.log({...props})}
-        reverse={false}
-        renderSize={56}
-        renderColor={color}
-        x={0}
-        y={0}
-        renderText={title}
-        // change to id in the future
-        key={title}
-      />
-    ),
-    this.state.circles,
-  )
+  updatePosition = (x, y, circleId) => {
+    usersRef.child(`${auth.currentUser.uid}/circles/${circleId}`).update({x, y})
+  }
+
+  renderCircles = () => {
+    const {circlesToRender} = this.state
+    return (
+      circlesToRender &&
+      circlesToRender.map(({
+        name,
+        color,
+        circleId,
+        x,
+        y,
+      }, index) => (
+        <Circle
+          color={color}
+          x={x}
+          y={y}
+          index={index}
+          name={name}
+          circleId={circleId}
+        />
+      ))
+    )
+  }
 
   renderStub = () => (
     <View>
-      <Text>
-        You have no circles yet.
-      </Text>
-      <Button
-        title="Add circle"
-        onPress={() => Actions.push('newCircle')}
-      />
+      <Text>You have no circles yet.</Text>
+      <Button title="Add circle" onPress={() => Actions.push('newCircle')} />
     </View>
   )
 
   render() {
-    const {circles} = this.state
+    const {circlesToRender} = this.state
     return (
       <View onLayout={this.getLayout} style={styles.container}>
         <Text>Circle list incoming</Text>
-        {circles ? this.renderCircles() : this.renderStub()}
+        {circlesToRender ? this.renderCircles() : this.renderStub()}
       </View>
     )
   }

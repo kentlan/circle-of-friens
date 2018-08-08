@@ -1,9 +1,9 @@
 import React from 'react'
 import {Text, View, Button, TextInput} from 'react-native'
-import _ from 'lodash/fp'
-import {auth} from '../../config/firebase'
-import styles from './styles'
 import SectionedMultiSelect from 'react-native-sectioned-multi-select'
+import {Actions} from 'react-native-router-flux'
+import {auth, circlesRef, usersRef} from '../../config/firebase'
+import styles from './styles'
 import colors from '../../utils/colors'
 
 const FRIEND_LIST = [
@@ -29,23 +29,30 @@ const FRIEND_LIST = [
 export default class NewCircle extends React.Component {
   state = {
     addedFriends: [],
-    color: colors[0],
+    color: [colors[0]],
     name: '',
-  }
-
-  componentDidMount() {
-    console.log(auth.currentUser)
   }
 
   selectMates = addedFriends => this.setState({addedFriends})
 
-  selectColor = color => console.log(color) || this.setState({color})
+  selectColor = color => this.setState({color})
 
   colorList = colors.map(color => ({
     color,
   }))
 
-  createCircle = _.noop
+  createCircle = () => {
+    const {name, addedFriends, color} = this.state
+    const {uid} = auth.currentUser
+    const circleKey = circlesRef.push({ownerId: uid, name, color: color[0]}).key
+    const ownerKeyInCircle = circlesRef.child(`${circleKey}/users`).push(uid).key
+    usersRef.child(`${uid}/circles`).update({[circleKey]: ownerKeyInCircle})
+    addedFriends.map((user) => {
+      const userKeyInCircle = circlesRef.child(`${circleKey}/users`).push(user).key
+      return usersRef.child(`${uid}/circles`).update({[circleKey]: {userKeyInCircle}})
+    })
+    Actions.replace('circles')
+  }
 
   renderItem = ({item}) => <Text>{item.key}</Text>
 
@@ -78,7 +85,7 @@ export default class NewCircle extends React.Component {
             showDropDowns
             showCancelButton
             onSelectedItemsChange={this.selectColor}
-            selectedItems={[color]}
+            selectedItems={color}
           />
         </View>
         <View style={styles.inputContainer}>

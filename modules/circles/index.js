@@ -56,6 +56,7 @@ export default class Circles extends React.Component {
           index={index}
           name={name}
           circleId={circleId}
+          key={circleId}
         />
       ))
     )

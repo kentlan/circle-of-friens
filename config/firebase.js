@@ -22,6 +22,7 @@ provider.addScope('user_friends').addScope('email')
 export const storage = firebase.storage()
 export const usersRef = database.ref('/users/')
 export const circlesRef = database.ref('/circles/')
+export const facebookIdUserMapRef = database.ref('/facebookIdUserMap/')
 
 export const facebookLogin = async () => {
   const {type, token} = await Expo.Facebook.logInWithReadPermissionsAsync(
@@ -31,7 +32,10 @@ export const facebookLogin = async () => {
   if (type === 'success') {
     const credential = firebase.auth.FacebookAuthProvider.credential(token)
     firebase.auth().signInAndRetrieveDataWithCredential(credential)
-      .then(({user: {uid}}) => usersRef.child(uid).update({accessToken: token}))
+      .then(({user: {uid}, additionalUserInfo: {profile, isNewUser}}) => {
+        usersRef.child(uid).update({accessToken: token, userInfo: profile})
+        return isNewUser && facebookIdUserMapRef.child(profile.id).set(uid)
+      })
       .catch(console.error)
     // usersRef.update
     // .then(hui => console.log('hui', hui))

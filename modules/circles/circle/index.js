@@ -1,6 +1,7 @@
 import React from 'react'
 import Draggable from 'react-native-draggable'
 import PropTypes from 'prop-types'
+import {Actions} from 'react-native-router-flux'
 import {auth, usersRef} from '../../../config/firebase'
 
 export default class Circles extends React.Component {
@@ -44,7 +45,7 @@ export default class Circles extends React.Component {
         pressDragRelease={(event, {dx, dy}) =>
            this.updatePosition(this.state.x + dx, this.state.y + dy)
         }
-        pressDrag={() => null}
+        pressDrag={() => Actions.push('circleOverview', {circleId})}
         reverse={false}
         renderSize={56}
         renderColor={color}

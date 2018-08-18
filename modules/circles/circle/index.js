@@ -43,7 +43,7 @@ export default class Circles extends React.Component {
     return (
       <Draggable
         pressDragRelease={(event, {dx, dy}) =>
-           this.updatePosition(this.state.x + dx, this.state.y + dy)
+          this.updatePosition(this.state.x + dx, this.state.y + dy)
         }
         pressDrag={() => Actions.push('circleOverview', {circleId})}
         reverse={false}

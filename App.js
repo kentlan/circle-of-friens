@@ -1,5 +1,5 @@
 import React from 'react'
-import {Scene, Router, Stack, Modal, Actions} from 'react-native-router-flux'
+import {Scene, Router, Modal, Actions} from 'react-native-router-flux'
 import {auth} from './config/firebase'
 import Start from './modules/start'
 import Login from './modules/login'

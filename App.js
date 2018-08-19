@@ -1,5 +1,5 @@
 import React from 'react'
-import {Scene, Router, Modal, Actions} from 'react-native-router-flux'
+import {Scene, Router, Modal, Actions, Lightbox} from 'react-native-router-flux'
 import {auth} from './config/firebase'
 import Start from './modules/start'
 import Login from './modules/login'
@@ -12,35 +12,37 @@ export default class App extends React.Component {
   render() {
     return (
       <Router>
-        <Scene key="modal" modal hideNavBar >
-          <Scene key="root">
-            <Scene key="start" component={Start} title="Start" hideNavBar />
-            <Scene key="login" component={Login} title="Login" hideNavBar />
-            <Scene
-              key="circles"
-              component={Circles}
-              title="Circles"
-              onRight={() => Actions.push('newCircle')}
-              onLeft={() => auth.signOut()}
-              rightTitle="+"
-              leftTitle="Log out"
-              // rightButtonImage={require('path/to/your/icon')}
-            />
-            <Scene
-              key="newCircle"
-              component={NewCircle}
-              title="New Circle"
+        <Lightbox>
+          <Scene key="modal" modal hideNavBar>
+            <Scene key="root">
+              <Scene key="start" component={Start} title="Start" hideNavBar />
+              <Scene key="login" component={Login} title="Login" hideNavBar />
+              <Scene
+                key="circles"
+                component={Circles}
+                title="Circles"
+                onRight={() => Actions.push('newCircle')}
+                onLeft={() => auth.signOut()}
+                rightTitle="+"
+                leftTitle="Log out"
+                // rightButtonImage={require('path/to/your/icon')}
+              />
+              <Scene
+                key="newCircle"
+                component={NewCircle}
+                title="New Circle"
+                // rightButtonImage={require('path/to/your/icon')}
+              />
+            </Scene>
+            <Modal
+              key="circleOverview"
+              component={CircleOverview}
+              title="Circle Overview"
+              hideNavBar
               // rightButtonImage={require('path/to/your/icon')}
             />
           </Scene>
-          <Modal
-            key="circleOverview"
-            component={CircleOverview}
-            title="Circle Overview"
-            hideNavBar
-            // rightButtonImage={require('path/to/your/icon')}
-          />
-        </Scene>
+        </Lightbox>
       </Router>
     )
   }

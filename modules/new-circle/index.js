@@ -39,7 +39,7 @@ export default class NewCircle extends React.Component {
 
   selectMates = addedFriends => this.setState({addedFriends})
 
-  selectColor = color => console.log(color) || this.setState({color})
+  selectColor = color => this.setState({color})
 
   colorList = colors.map(color => ({
     color,
@@ -68,6 +68,7 @@ export default class NewCircle extends React.Component {
       placeholder="e.g. DnD crew"
       onChangeText={name => this.setState({name})}
       value={this.state.name}
+      maxLength={40}
     />
   )
 

@@ -1,14 +1,17 @@
 import React from 'react'
 import {Text, View, Button} from 'react-native'
 import {ConfirmDialog} from 'react-native-simple-dialogs'
+import PropTypes from 'prop-types'
 import _ from 'lodash/fp'
 import styles from './styles'
 import CircleSettings from './circle-settings'
 import {circlesRef, auth, usersRef} from '../../../config/firebase'
 
-const NOT_BUSY = true
-
 export default class CircleOverview extends React.Component {
+  static propTypes = {
+    circleId: PropTypes.string.isRequired,
+  }
+
   state = {
     settingsOpened: false,
     ready: false,
@@ -16,14 +19,18 @@ export default class CircleOverview extends React.Component {
 
   componentWillMount() {
     circlesRef.child(this.props.circleId).once('value', (circleSnapshot) => {
-      const {name, ownerId} = circleSnapshot.val()
+      const {ownerId, color} = circleSnapshot.val()
       const currentUser = auth.currentUser.uid
       const owner = ownerId === currentUser
       this.setState({
-        name,
         owner,
         currentUser,
+        color,
       })
+    })
+    circlesRef.child(`${this.props.circleId}/name`).on('value', (circleSnapshot) => {
+      const name = circleSnapshot.val()
+      this.setState({name})
     })
     circlesRef.child(`${this.props.circleId}/users`).on('child_removed', (circleSnapshot) => {
       const removedUserId = circleSnapshot.key
@@ -42,12 +49,17 @@ export default class CircleOverview extends React.Component {
     circlesRef.child(`${this.props.circleId}/users`).on('child_changed', (circleSnapshot) => {
       const userStatus = circleSnapshot.val()
       const userId = circleSnapshot.key
-      console.log(userStatus, userId)
+      this.setState({
+        userData: this.state.userData.map(data => (data.userId === userId
+          ? {...data, userStatus}
+          : data)),
+      })
     })
   }
 
   componentWillUnmount() {
     circlesRef.child(`${this.props.circleId}/users`).off()
+    circlesRef.child(`${this.props.circleId}/name`).off()
   }
 
   kickMember = (uid) => {
@@ -59,13 +71,14 @@ export default class CircleOverview extends React.Component {
 
   editCircleName = () => (this.state.owner ? null : null)
 
-  renderStub = () => <Text>loading circle data...</Text>
+  toggleReady = () => {
+    const {currentUser, ready} = this.state
+    const {circleId} = this.props
+    circlesRef.child(`${circleId}/users/${currentUser}`).update({ready: !ready})
+    this.setState({ready: !ready})
+  }
 
-  renderMate = ({name}) => (
-    <View>
-      <Text style={NOT_BUSY ? styles.acive : styles.inactive}>{name}</Text>
-    </View>
-  )
+  renderStub = () => <Text>loading circle data...</Text>
 
   renderConfirm = () => {
     const {confirmDelete} = this.state
@@ -88,13 +101,14 @@ export default class CircleOverview extends React.Component {
   }
 
   renderCircleData = () => {
-    const {name, settingsOpened} = this.state
+    const {name, color, settingsOpened} = this.state
+    const {circleId} = this.props
     return (
-      <View style={{marginTop: 10}}>
+      <View style={{marginTop: 50}}>
         <Text onPress={() => this.setState({settingsOpened: !settingsOpened})}>
           {settingsOpened ? 'close settings' : 'open settings'}
         </Text>
-        {settingsOpened && <CircleSettings />}
+        {settingsOpened && <CircleSettings name={name} color={color} circleId={circleId} />}
         <Text onPress={this.editCircleName}>{name}</Text>
         <Text>Circle members</Text>
         {this.renderMembers()}
@@ -105,26 +119,16 @@ export default class CircleOverview extends React.Component {
   renderMembers = () => {
     const {userData = [], currentUser, owner} = this.state
     return _.map(
-      ({name, userId}) =>
-        (
-          <View key={userId}>
-            <Text>{name}</Text>
-            {owner &&
-              currentUser !== userId && (
-                <Text onPress={() => this.setState({confirmDelete: {userId, name}})}>kick</Text>
-              )}
-            {this.renderConfirm()}
-          </View>
-        ),
+      ({name, userId, userStatus: {ready}}) => (
+        <View key={userId}>
+          <Text style={ready ? styles.acive : styles.inactive}>{name}</Text>
+          {owner &&
+            currentUser !== userId && <Text onPress={() => this.setState({confirmDelete: {userId, name}})}>kick</Text>}
+          {this.renderConfirm()}
+        </View>
+      ),
       userData,
     )
-  }
-
-  toggleReady = () => {
-    const {currentUser, ready} = this.state
-    const {circleId} = this.props
-    circlesRef.child(`${circleId}/users/${currentUser}`).update({ready: !ready})
-    this.setState({ready: !ready})
   }
 
   render() {

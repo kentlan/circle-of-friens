@@ -2,9 +2,9 @@ import React from 'react'
 import Draggable from 'react-native-draggable'
 import PropTypes from 'prop-types'
 import {Actions} from 'react-native-router-flux'
-import {auth, usersRef} from '../../../config/firebase'
+import {auth, usersRef, circlesRef} from '../../../config/firebase'
 
-export default class Circles extends React.Component {
+export default class Circle extends React.Component {
   static propTypes = {
     name: PropTypes.string,
     color: PropTypes.string.isRequired,
@@ -23,6 +23,16 @@ export default class Circles extends React.Component {
   state = {
     x: this.props.x,
     y: this.props.y,
+  }
+
+  componentWillMount() {
+    circlesRef.child(this.props.circleId).on('child_changed', (childSnapshot) => {
+      this.setState({[childSnapshot.key]: childSnapshot.val()})
+    })
+  }
+
+  componentWillUnmount() {
+    circlesRef.child(this.props.circleId).off()
   }
 
   updatePosition = (x, y) => {
@@ -48,7 +58,7 @@ export default class Circles extends React.Component {
         pressDrag={() => Actions.push('circleOverview', {circleId})}
         reverse={false}
         renderSize={56}
-        renderColor={color}
+        renderColor={this.state.color || color}
         x={x}
         y={y}
         z={index}

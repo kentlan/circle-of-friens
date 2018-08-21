@@ -101,14 +101,27 @@ export default class CircleOverview extends React.Component {
   }
 
   renderCircleData = () => {
-    const {name, color, settingsOpened} = this.state
+    const {
+      name,
+      color,
+      settingsOpened,
+      owner,
+      currentUser,
+    } = this.state
     const {circleId} = this.props
     return (
       <View style={{marginTop: 50}}>
         <Text onPress={() => this.setState({settingsOpened: !settingsOpened})}>
           {settingsOpened ? 'close settings' : 'open settings'}
         </Text>
-        {settingsOpened && <CircleSettings name={name} color={color} circleId={circleId} />}
+        {settingsOpened && (
+          <CircleSettings
+            name={name}
+            color={color}
+            circleId={circleId}
+            currentUser={currentUser}
+            owner={owner}
+          />)}
         <Text onPress={this.editCircleName}>{name}</Text>
         <Text>Circle members</Text>
         {this.renderMembers()}

@@ -1,6 +1,7 @@
 import React from 'react'
 import {Text, View, Button} from 'react-native'
 import {Actions} from 'react-native-router-flux'
+import _ from 'lodash'
 import styles from './styles'
 import {auth, usersRef, circlesRef} from '../../config/firebase'
 import Circle from './circle'
@@ -11,8 +12,9 @@ export default class Circles extends React.Component {
   componentDidMount() {
     usersRef.child(`${auth.currentUser.uid}/circles`).on('value', (userCirclesSnapshot) => {
       const userCircles = userCirclesSnapshot.val()
+
       if (!userCircles) {
-        return
+        return this.setState({circlesToRender: []})
       }
       circlesRef.once('value', (circlesSnapshot) => {
         const circlesToRender = Object.keys(userCircles).map(circleId => ({
@@ -43,21 +45,9 @@ export default class Circles extends React.Component {
     return (
       circlesToRender &&
       circlesToRender.map(({
-        name,
-        color,
-        circleId,
-        x,
-        y,
+        name, color, circleId, x, y,
       }, index) => (
-        <Circle
-          color={color}
-          x={x}
-          y={y}
-          index={index}
-          name={name}
-          circleId={circleId}
-          key={circleId}
-        />
+        <Circle color={color} x={x} y={y} index={index} name={name} circleId={circleId} key={circleId} />
       ))
     )
   }
@@ -74,7 +64,7 @@ export default class Circles extends React.Component {
     return (
       <View onLayout={this.getLayout} style={styles.container}>
         <Text>Circle list incoming</Text>
-        {circlesToRender ? this.renderCircles() : this.renderStub()}
+        {_.isEmpty(circlesToRender) ? this.renderStub() : this.renderCircles()}
       </View>
     )
   }

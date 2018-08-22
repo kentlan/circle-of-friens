@@ -16,7 +16,7 @@ export default class Circles extends React.Component {
       if (!userCircles) {
         return this.setState({circlesToRender: []})
       }
-      circlesRef.once('value', (circlesSnapshot) => {
+      return circlesRef.once('value', (circlesSnapshot) => {
         const circlesToRender = Object.keys(userCircles).map(circleId => ({
           x: userCircles[circleId].x || 0,
           y: userCircles[circleId].y || 0,

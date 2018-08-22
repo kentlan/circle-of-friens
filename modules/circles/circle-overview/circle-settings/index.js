@@ -25,12 +25,13 @@ export default class CircleSettings extends React.Component {
   state = {
     name: this.props.name,
     color: this.props.color,
-    confirmLeaveCircle: false,
   }
 
   componentWillUnmount() {
     const {color} = this.state
-    circlesRef.child(this.props.circleId).update({color})
+    circlesRef
+      .child(this.props.circleId)
+      .once('value', circleSnapshot => circleSnapshot.val() && circlesRef.child(this.props.circleId).update({color}))
   }
 
   changeName = name => this.setState({name})
@@ -52,12 +53,35 @@ export default class CircleSettings extends React.Component {
       }))
     usersRef
       .child(`${currentUser}/circles/${circleId}`)
+      .onDisconnect()
+      .cancel()
+    usersRef
+      .child(`${currentUser}/circles/${circleId}`)
       .remove()
-      .then(Actions.pop('circleOverview'))
+      .then(() => Actions.pop('circleOverview'))
   }
 
   deleteCircle = () => {
-    circlesRef.child(this.props.circleId).remove()
+    const {circleId} = this.props
+    this.setState({confirmDeleteCircle: false})
+    circlesRef
+      .child(`${circleId}/users`)
+      .once('value', (circleUsersRef) => {
+        Object.keys(circleUsersRef.val())
+          .filter(key => key !== 'ownerId')
+          .forEach((userId) => {
+            usersRef
+              .child(`${userId}/circles/${circleId}`)
+              .onDisconnect()
+              .cancel()
+            usersRef.child(`${userId}/circles/${circleId}`).remove()
+          })
+      })
+      .then(() =>
+        circlesRef
+          .child(this.props.circleId)
+          .remove()
+          .then(Actions.pop('circleOverview')))
   }
 
   renameCircle = () => {
@@ -65,14 +89,14 @@ export default class CircleSettings extends React.Component {
     circlesRef.child(this.props.circleId).update({name})
   }
 
-  renderConfirm = () => {
+  renderConfirmLeaveCircle = () => {
     const {name} = this.props
     const {confirmLeaveCircle} = this.state
     return (
       <ConfirmDialog
         title="Confirm leave"
         message={`Are you sure you want to leave ${name} circle?`}
-        visible={confirmLeaveCircle}
+        visible={!!confirmLeaveCircle}
         onTouchOutside={() => this.setState({confirmLeaveCircle: false})}
         positiveButton={{
           title: 'YES',
@@ -81,6 +105,27 @@ export default class CircleSettings extends React.Component {
         negativeButton={{
           title: 'NO',
           onPress: () => this.setState({confirmLeaveCircle: false}),
+        }}
+      />
+    )
+  }
+
+  renderConfirmDeleteCircle = () => {
+    const {name} = this.props
+    const {confirmDeleteCircle} = this.state
+    return (
+      <ConfirmDialog
+        title="Confirm delete"
+        message={`Are you sure you want to delete ${name} circle?`}
+        visible={!!confirmDeleteCircle}
+        onTouchOutside={() => this.setState({confirmDeleteCircle: false})}
+        positiveButton={{
+          title: 'YES',
+          onPress: this.deleteCircle,
+        }}
+        negativeButton={{
+          title: 'NO',
+          onPress: () => this.setState({confirmDeleteCircle: false}),
         }}
       />
     )
@@ -109,8 +154,9 @@ export default class CircleSettings extends React.Component {
           </View>
         )}
         <Text onPress={() => this.setState({confirmLeaveCircle: true})}>Leave circle</Text>
-        {owner && <Text>Delete circle</Text>}
-        {this.renderConfirm()}
+        {owner && <Text onPress={() => this.setState({confirmDeleteCircle: true})}>Delete circle</Text>}
+        {this.renderConfirmLeaveCircle()}
+        {this.renderConfirmDeleteCircle()}
       </View>
     )
   }

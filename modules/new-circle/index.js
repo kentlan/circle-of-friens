@@ -18,6 +18,7 @@ export default class NewCircle extends React.Component {
     this.getUserFriends()
   }
 
+  /* eslint-disable no-console */
   getUserFriends = () => {
     usersRef.child(auth.currentUser.uid).once('value', async (usersSnapshot) => {
       const {accessToken} = usersSnapshot.val()
@@ -53,7 +54,7 @@ export default class NewCircle extends React.Component {
     const circleKey = circlesRef.push({ownerId: uid, name, color}).key
     circlesRef.child(`${circleKey}/users`).update({[uid]: {ready: false}})
     usersRef.child(`${uid}/circles`).update({[circleKey]: {role: 'owner'}})
-    addedFriends.map((user) => {
+    addedFriends.forEach((user) => {
       circlesRef.child(`${circleKey}/users`).update({[facebookIdUserMap[user]]: {ready: false}})
       usersRef.child(`${facebookIdUserMap[user]}/circles`).update({[circleKey]: {role: 'guest'}})
     })

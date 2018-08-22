@@ -24,7 +24,7 @@ const Palette = ({onColorPick, activeColor}) => (
           height: 50,
           zIndex: 2,
         }}
-        onPress={() => console.log(color) || onColorPick(color)}
+        onPress={() => onColorPick(color)}
       />
     ))}
   </View>

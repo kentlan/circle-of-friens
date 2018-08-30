@@ -4,13 +4,13 @@ import SectionedMultiSelect from 'react-native-sectioned-multi-select'
 import {Actions} from 'react-native-router-flux'
 import {auth, circlesRef, usersRef, facebookIdUserMapRef} from '../../config/firebase'
 import styles from './styles'
-import colors from '../../utils/colors'
+import colors from '../ui/palette/colors'
 import Palette from '../ui/palette'
 
 export default class NewCircle extends React.Component {
   state = {
     addedFriends: [],
-    color: [colors[0]],
+    color: colors[0],
     name: '',
   }
 
@@ -75,6 +75,7 @@ export default class NewCircle extends React.Component {
 
   render() {
     const {addedFriends, color, userFriends} = this.state
+    console.log(color)
     return (
       <View style={styles.container}>
         <View style={styles.inputContainer}>

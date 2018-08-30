@@ -26,7 +26,6 @@ export default class Start extends React.Component {
     clearTimeout(this.timer)
   }
 
-
   checkForAuth = () => auth && auth.currentUser === null && this.setState({retieving: true})
 
   render() {

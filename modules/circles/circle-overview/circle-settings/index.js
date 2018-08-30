@@ -49,6 +49,7 @@ export default class CircleSettings extends React.Component {
         const restUsers = usersSnapshot.val()
         return _.isEmpty(restUsers)
           ? this.deleteCircle()
+          // there is still ownerId!
           : owner && circlesRef.child(`${circleId}/users`).update({ownerId: Object.keys(restUsers)[0]})
       }))
     usersRef

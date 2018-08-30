@@ -1,5 +1,5 @@
 import * as firebase from 'firebase'
-import Expo from 'expo'
+import {Facebook, Permissions, Notifications} from 'expo'
 import * as c from './constants'
 
 /* eslint-disable no-console */
@@ -25,13 +25,14 @@ export const circlesRef = database.ref('/circles/')
 export const facebookIdUserMapRef = database.ref('/facebookIdUserMap/')
 
 export const facebookLogin = async () => {
-  const {type, token} = await Expo.Facebook.logInWithReadPermissionsAsync(
-    c.FACEBOOK_APP_ID,
-    {permissions: ['public_profile', 'email', 'user_friends']},
-  )
+  const {type, token} = await Facebook.logInWithReadPermissionsAsync(c.FACEBOOK_APP_ID, {
+    permissions: ['public_profile', 'email', 'user_friends'],
+  })
   if (type === 'success') {
     const credential = firebase.auth.FacebookAuthProvider.credential(token)
-    firebase.auth().signInAndRetrieveDataWithCredential(credential)
+    firebase
+      .auth()
+      .signInAndRetrieveDataWithCredential(credential)
       .then(({user: {uid}, additionalUserInfo: {profile, isNewUser}}) => {
         usersRef.child(uid).update({accessToken: token, userInfo: profile})
         return isNewUser && facebookIdUserMapRef.child(profile.id).set(uid)
@@ -43,5 +44,23 @@ export const facebookLogin = async () => {
   return null
 }
 
-export const signIn = () =>
-  auth.signInAnonymously().catch(error => console.error(error))
+export const registerForPushNotifications = async () => {
+  const {status} = await Permissions.getAsync(Permissions.NOTIFICATIONS)
+  let finalStatus = status
+  if (status !== 'granted') {
+    const askResponse = await Permissions.askAsync(Permissions.NOTIFICATIONS)
+    console.log(askResponse.status, status, 'wtf')
+    finalStatus = askResponse.status
+  }
+  console.log(status, 'lool')
+  if (finalStatus !== 'granted') {
+    return
+  }
+  const expoPushToken = await Notifications.getExpoPushTokenAsync()
+
+  // add token to firebase
+  const {uid} = auth.currentUser
+  usersRef.child(uid).update({expoPushToken})
+}
+
+export const signIn = () => auth.signInAnonymously().catch(error => console.error(error))

@@ -3,13 +3,14 @@ import {Text, View, Button} from 'react-native'
 import {Actions} from 'react-native-router-flux'
 import _ from 'lodash'
 import styles from './styles'
-import {auth, usersRef, circlesRef} from '../../config/firebase'
+import {auth, usersRef, circlesRef, registerForPushNotifications} from '../../config/firebase'
 import Circle from './circle'
 
 export default class Circles extends React.Component {
   state = {}
 
   componentDidMount() {
+    registerForPushNotifications()
     usersRef.child(`${auth.currentUser.uid}/circles`).on('value', (userCirclesSnapshot) => {
       const userCircles = userCirclesSnapshot.val()
 

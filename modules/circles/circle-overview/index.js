@@ -1,7 +1,8 @@
 import React from 'react'
-import {Text, View, Button} from 'react-native'
+import {Text, View, Button, FlatList} from 'react-native'
 import {ConfirmDialog} from 'react-native-simple-dialogs'
 import PropTypes from 'prop-types'
+import {Actions} from 'react-native-router-flux'
 import _ from 'lodash/fp'
 import styles from './styles'
 import CircleSettings from './circle-settings'
@@ -18,7 +19,8 @@ export default class CircleOverview extends React.Component {
   }
 
   componentWillMount() {
-    circlesRef.child(this.props.circleId).once('value', (circleSnapshot) => {
+    const {circleId} = this.props
+    circlesRef.child(circleId).once('value', (circleSnapshot) => {
       const {ownerId, color} = circleSnapshot.val()
       const currentUser = auth.currentUser.uid
       const owner = ownerId === currentUser
@@ -27,18 +29,22 @@ export default class CircleOverview extends React.Component {
         currentUser,
         color,
       })
+      circlesRef.child(`${circleId}/users/${currentUser}`).once('value', (userSnapshot) => {
+        const {ready} = userSnapshot.val()
+        this.setState({ready})
+      })
     })
-    circlesRef.child(`${this.props.circleId}/name`).on('value', (circleSnapshot) => {
+    circlesRef.child(`${circleId}/name`).on('value', (circleSnapshot) => {
       const name = circleSnapshot.val()
       this.setState({name})
     })
-    circlesRef.child(`${this.props.circleId}/users`).on('child_removed', (circleSnapshot) => {
+    circlesRef.child(`${circleId}/users`).on('child_removed', (circleSnapshot) => {
       const removedUserId = circleSnapshot.key
       this.setState({
         userData: this.state.userData.filter(({userId}) => userId !== removedUserId),
       })
     })
-    circlesRef.child(`${this.props.circleId}/users`).on('child_added', (circleSnapshot) => {
+    circlesRef.child(`${circleId}/users`).on('child_added', (circleSnapshot) => {
       const userStatus = circleSnapshot.val()
       const userId = circleSnapshot.key
       usersRef.child(`${userId}/userInfo`).once('value', usersSnapshot =>
@@ -46,13 +52,11 @@ export default class CircleOverview extends React.Component {
           userData: [...(this.state.userData || []), {...usersSnapshot.val(), userId, userStatus}],
         }))
     })
-    circlesRef.child(`${this.props.circleId}/users`).on('child_changed', (circleSnapshot) => {
+    circlesRef.child(`${circleId}/users`).on('child_changed', (circleSnapshot) => {
       const userStatus = circleSnapshot.val()
       const userId = circleSnapshot.key
       this.setState({
-        userData: this.state.userData.map(data => (data.userId === userId
-          ? {...data, userStatus}
-          : data)),
+        userData: this.state.userData.map(data => (data.userId === userId ? {...data, userStatus} : data)),
       })
     })
   }
@@ -69,7 +73,7 @@ export default class CircleOverview extends React.Component {
     this.setState({confirmDelete: false})
   }
 
-  editCircleName = () => (this.state.owner ? null : null)
+  closeOverview = () => Actions.pop('circleOverview')
 
   toggleReady = () => {
     const {currentUser, ready} = this.state
@@ -102,54 +106,88 @@ export default class CircleOverview extends React.Component {
 
   renderCircleData = () => {
     const {
-      name,
-      color,
-      settingsOpened,
-      owner,
-      currentUser,
+      name, color, settingsOpened, owner, currentUser,
     } = this.state
     const {circleId} = this.props
     return (
-      <View style={{marginTop: 50}}>
-        <Text onPress={() => this.setState({settingsOpened: !settingsOpened})}>
-          {settingsOpened ? 'close settings' : 'open settings'}
-        </Text>
-        {settingsOpened && (
-          <CircleSettings
-            name={name}
-            color={color}
-            circleId={circleId}
-            currentUser={currentUser}
-            owner={owner}
-          />)}
-        <Text onPress={this.editCircleName}>{name}</Text>
-        <Text>Circle members</Text>
-        {this.renderMembers()}
+      <View style={styles.circleDataWrapper}>
+        <View style={styles.header}>
+          <View style={styles.textWrapper}>
+            <Text style={styles.headerText} onPress={this.closeOverview}>
+              back
+            </Text>
+          </View>
+          <View style={styles.textWrapper}>
+            <Text style={styles.headerText}>{name}</Text>
+          </View>
+          <View style={styles.textWrapper}>
+            <Text style={styles.headerText} onPress={() => this.setState({settingsOpened: !settingsOpened})}>
+              {settingsOpened ? 'close settings' : 'open settings'}
+            </Text>
+          </View>
+        </View>
+        <View style={styles.members}>
+          {settingsOpened ? (
+            <CircleSettings
+              style={{flex: 1}}
+              name={name}
+              color={color}
+              circleId={circleId}
+              currentUser={currentUser}
+              owner={owner}
+            />
+          ) : (
+            this.renderMembers()
+          )}
+        </View>
       </View>
     )
   }
 
   renderMembers = () => {
     const {userData = [], currentUser, owner} = this.state
-    return _.map(
-      ({name, userId, userStatus: {ready}}) => (
-        <View key={userId}>
-          <Text style={ready ? styles.acive : styles.inactive}>{name}</Text>
-          {owner &&
-            currentUser !== userId && <Text onPress={() => this.setState({confirmDelete: {userId, name}})}>kick</Text>}
-          {this.renderConfirm()}
-        </View>
-      ),
-      userData,
+    return (
+      <FlatList
+        data={userData}
+        renderItem={({
+          item: {
+            name,
+            userId,
+            userStatus: {ready},
+          },
+        }) => (
+          <View style={styles.user} key={userId}>
+            <Text style={ready ? styles.acive : styles.inactive}>{name}</Text>
+            {owner &&
+              currentUser !== userId && (
+                <Text onPress={() => this.setState({confirmDelete: {userId, name}})}>kick</Text>
+              )}
+            {this.renderConfirm()}
+          </View>
+        )}
+      />
     )
+    // return _.map(
+    //   ({name, userId, userStatus: {ready}}) => (
+    //     <View key={userId}>
+    //       <Text style={ready ? styles.acive : styles.inactive}>{name}</Text>
+    //       {owner &&
+    //         currentUser !== userId && <Text onPress={() => this.setState({confirmDelete: {userId, name}})}>kick</Text>}
+    //       {this.renderConfirm()}
+    //     </View>
+    //   ),
+    //   userData,
+    // )
   }
 
   render() {
     const {ready} = this.state
     return (
-      <View onLayout={this.getLayout} style={styles.container}>
+      <View style={styles.container}>
         {this.state.name ? this.renderCircleData() : this.renderStub()}
-        <Button title={ready ? 'busy again' : 'ready!'} onPress={this.toggleReady} />
+        <View style={styles.buttonContainer}>
+          <Button title={ready ? 'busy again' : 'ready!'} onPress={this.toggleReady} />
+        </View>
       </View>
     )
   }

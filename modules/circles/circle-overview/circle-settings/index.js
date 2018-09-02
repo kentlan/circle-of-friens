@@ -8,11 +8,6 @@ import styles from './styles'
 import Palette from '../../../ui/palette'
 import {circlesRef, usersRef} from '../../../../config/firebase'
 
-const container = {
-  justifyContent: 'center',
-  alignItems: 'center',
-}
-
 export default class CircleSettings extends React.Component {
   static propTypes = {
     name: PropTypes.string.isRequired,
@@ -136,7 +131,7 @@ export default class CircleSettings extends React.Component {
     const {name, color} = this.state
     const {owner} = this.props
     return (
-      <View style={container}>
+      <View style={styles.container}>
         {owner && (
           <View>
             <Text>Circle name</Text>

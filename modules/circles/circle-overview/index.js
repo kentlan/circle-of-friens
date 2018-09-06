@@ -3,6 +3,7 @@ import {Text, View, Button, FlatList} from 'react-native'
 import {ConfirmDialog} from 'react-native-simple-dialogs'
 import PropTypes from 'prop-types'
 import {Actions} from 'react-native-router-flux'
+// import {Ionicons} from 'expo/vector-icons'
 import _ from 'lodash/fp'
 import styles from './styles'
 import CircleSettings from './circle-settings'
@@ -112,8 +113,8 @@ export default class CircleOverview extends React.Component {
     return (
       <View style={styles.circleDataWrapper}>
         <View style={styles.header}>
-          <View style={styles.textWrapper}>
-            <Text style={styles.headerText} onPress={this.closeOverview}>
+          <View style={styles.backWrapper}>
+            <Text style={styles.back} onPress={this.closeOverview}>
               back
             </Text>
           </View>
@@ -126,6 +127,8 @@ export default class CircleOverview extends React.Component {
             </Text>
           </View>
         </View>
+
+        <View></View>
         <View style={styles.members}>
           {settingsOpened ? (
             <CircleSettings
@@ -149,6 +152,7 @@ export default class CircleOverview extends React.Component {
     return (
       <FlatList
         data={userData}
+        keyExtractor={({userId}) => userId}
         renderItem={({
           item: {
             name,
@@ -156,28 +160,16 @@ export default class CircleOverview extends React.Component {
             userStatus: {ready},
           },
         }) => (
-          <View style={styles.user} key={userId}>
-            <Text style={ready ? styles.acive : styles.inactive}>{name}</Text>
+          <View style={styles.user}>
+            <Text style={ready ? styles.active : styles.inactive}>{name}</Text>
             {owner &&
               currentUser !== userId && (
                 <Text onPress={() => this.setState({confirmDelete: {userId, name}})}>kick</Text>
               )}
-            {this.renderConfirm()}
           </View>
         )}
       />
     )
-    // return _.map(
-    //   ({name, userId, userStatus: {ready}}) => (
-    //     <View key={userId}>
-    //       <Text style={ready ? styles.acive : styles.inactive}>{name}</Text>
-    //       {owner &&
-    //         currentUser !== userId && <Text onPress={() => this.setState({confirmDelete: {userId, name}})}>kick</Text>}
-    //       {this.renderConfirm()}
-    //     </View>
-    //   ),
-    //   userData,
-    // )
   }
 
   render() {
@@ -186,6 +178,7 @@ export default class CircleOverview extends React.Component {
       <View style={styles.container}>
         {this.state.name ? this.renderCircleData() : this.renderStub()}
         <View style={styles.buttonContainer}>
+          {this.renderConfirm()}
           <Button title={ready ? 'busy again' : 'ready!'} onPress={this.toggleReady} />
         </View>
       </View>

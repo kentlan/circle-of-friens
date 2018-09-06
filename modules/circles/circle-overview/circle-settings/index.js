@@ -44,8 +44,8 @@ export default class CircleSettings extends React.Component {
         const restUsers = usersSnapshot.val()
         return _.isEmpty(restUsers)
           ? this.deleteCircle()
-          // there is still ownerId!
-          : owner && circlesRef.child(`${circleId}/users`).update({ownerId: Object.keys(restUsers)[0]})
+          : // there is still ownerId!
+          owner && circlesRef.child(`${circleId}/users`).update({ownerId: Object.keys(restUsers)[0]})
       }))
     usersRef
       .child(`${currentUser}/circles/${circleId}`)
@@ -133,26 +133,38 @@ export default class CircleSettings extends React.Component {
     return (
       <View style={styles.container}>
         {owner && (
-          <View>
-            <Text>Circle name</Text>
-            <TextInput
-              style={styles.nameInput}
-              placeholder="Leave circle unnamed, great"
-              onChangeText={this.changeName}
-              value={name}
-              maxLength={40}
-              onBlur={this.renameCircle}
-            />
-            <Text>Circle color</Text>
-            <View style={{maxHeight: 50}}>
-              <Palette onColorPick={this.selectColor} activeColor={color} />
+          <View style={styles.ownerSettings}>
+            <View style={styles.settingsItem}>
+              <Text style={{fontSize: 18}}>Circle name</Text>
+              <TextInput
+                style={styles.nameInput}
+                placeholder="Leave circle unnamed, great"
+                onChangeText={this.changeName}
+                value={name}
+                maxLength={40}
+                onBlur={this.renameCircle}
+              />
+            </View>
+            <View style={styles.settingsItem}>
+              <Text style={styles.paletteTitle}>Circle color</Text>
+              <View style={styles.palette}>
+                <Palette onColorPick={this.selectColor} activeColor={color} />
+              </View>
             </View>
           </View>
         )}
-        <Text onPress={() => this.setState({confirmLeaveCircle: true})}>Leave circle</Text>
-        {owner && <Text onPress={() => this.setState({confirmDeleteCircle: true})}>Delete circle</Text>}
-        {this.renderConfirmLeaveCircle()}
-        {this.renderConfirmDeleteCircle()}
+        <View style={styles.dangerZone}>
+          <Text style={styles.dangerButton} onPress={() => this.setState({confirmLeaveCircle: true})}>
+            Leave circle
+          </Text>
+          {owner && (
+            <Text style={styles.dangerButton} onPress={() => this.setState({confirmDeleteCircle: true})}>
+              Delete circle
+            </Text>
+          )}
+          {this.renderConfirmLeaveCircle()}
+          {this.renderConfirmDeleteCircle()}
+        </View>
       </View>
     )
   }

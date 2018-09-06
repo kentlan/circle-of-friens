@@ -18,9 +18,8 @@ exports.sendPushNotification = functions.database
         return readyUsers
     }
 
-    const readyUsersBefore = mapUserStatus(circleBeforeChange.users)
+    // const readyUsersBefore = mapUserStatus(circleBeforeChange.users)
     const readyUsersAfter = mapUserStatus(circleAfterChange.users)
-    //return the main promise
     return readyUsersAfter.length > 1 && admin.database().ref('users').once(
       'value', snapshot => console.log('BABYMETA;', snapshot.val())
     )
@@ -58,40 +57,4 @@ exports.sendPushNotification = functions.database
         body: JSON.stringify(messages)
       });
     });
-    // return functions.database
-    //   .ref('users/{id}')
-    //   .once("value")
-    //   .then((snapshot) => {
-    //     console.log('snapshot', snapshot)
-    //     snapshot.forEach((childSnapshot) => {
-    //       var expoPushToken = childSnapshot.val().expoPushToken;
-
-    //       if (expoPushToken) {
-    //         console.log('wow, it worked lol')
-    //         messages.push({
-    //           to: expoPushToken,
-    //           body: "New Note Added"
-    //         });
-    //       }
-    //     });
-
-    //     return Promise.all(messages);
-    //   })
-    //   .then((messages) => {
-    //     return fetch("https://exp.host/--/api/v2/push/send", {
-    //       method: "POST",
-    //       headers: {
-    //         Accept: "application/json",
-    //         "Content-Type": "application/json"
-    //       },
-    //       body: JSON.stringify(messages)
-    //     });
-    //   });
   });
-
-// // Create and Deploy Your First Cloud Functions
-// // https://firebase.google.com/docs/functions/write-firebase-functions
-//
-// exports.helloWorld = functions.https.onRequest((request, response) => {
-//  response.send("Hello from Firebase!");
-// });

@@ -32,7 +32,7 @@ export default class Start extends React.Component {
     const {retieving, showLogout} = this.state
     return (
       <View style={styles.container}>
-        <Text>CIRCLE OF FRIENDS</Text>
+        <Text style={{fontSize: 30, marginBottom: 20}}>CIRCLE OF FRIENDS</Text>
         {retieving && <Text>retrieveing account data...</Text>}
         {showLogout && <Button title="force log out" onPress={auth.signOut} />}
       </View>

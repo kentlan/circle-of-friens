@@ -3,7 +3,6 @@ import {StyleSheet} from 'react-native'
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'orange',
   },
   circleDataWrapper: {
     flex: 4,
@@ -18,9 +17,11 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   active: {
+    fontSize: 17,
     color: '#000',
   },
   inactive: {
+    fontSize: 17,
     color: '#9e9e9e',
   },
   header: {
@@ -29,11 +30,16 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: 10,
-    backgroundColor: 'yellow',
+    marginTop: 15,
   },
   members: {
-    flex: 3,
-    backgroundColor: 'green',
+    flex: 15,
+  },
+  backWrapper: {
+    flex: 1,
+    justifyContent: 'flex-start',
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   textWrapper: {
     flex: 1,
@@ -44,6 +50,10 @@ const styles = StyleSheet.create({
   headerText: {
     fontSize: 17,
     textAlign: 'center',
+  },
+  back: {
+    fontSize: 17,
+    textAlign: 'left',
   },
 })
 

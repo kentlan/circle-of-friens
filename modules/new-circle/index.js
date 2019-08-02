@@ -50,6 +50,7 @@ export default class NewCircle extends React.Component {
     const {
       name, addedFriends, color, facebookIdUserMap,
     } = this.state
+    if (name.length === 0 || addedFriends.length === 0) return
     const {uid} = auth.currentUser
     const circleKey = circlesRef.push({ownerId: uid, name, color}).key
     circlesRef.child(`${circleKey}/users`).update({[uid]: {ready: false}})

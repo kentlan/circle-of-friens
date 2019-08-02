@@ -9,8 +9,9 @@ import Circle from './circle'
 export default class Circles extends React.Component {
   state = {}
 
-  componentDidMount() {
+  componentWillMount() {
     registerForPushNotifications()
+    console.log(this.props)
     usersRef.child(`${auth.currentUser.uid}/circles`).on('value', (userCirclesSnapshot) => {
       const userCircles = userCirclesSnapshot.val()
 

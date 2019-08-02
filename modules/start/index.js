@@ -1,7 +1,8 @@
 import React from 'react'
 import {StyleSheet, Text, View, Button} from 'react-native'
 import {Actions} from 'react-native-router-flux'
-import {auth} from '../../config/firebase'
+import _ from 'lodash'
+import {auth, usersRef} from '../../config/firebase'
 
 const styles = StyleSheet.create({
   container: {
@@ -16,14 +17,21 @@ export default class Start extends React.Component {
   state = {}
 
   componentDidMount() {
-    const {replace} = Actions
     this.checkForAuth()
-    auth.onAuthStateChanged(user => (user ? replace('circles') : replace('login')))
+    auth.onAuthStateChanged(this.checkForCircles)
     this.timer = setTimeout(() => this.setState({showLogout: true}), 10000)
   }
 
   componentWillUnmount() {
     clearTimeout(this.timer)
+  }
+
+  checkForCircles = (user) => {
+    const {replace} = Actions
+    usersRef.child(`${user.uid}/circles`).on('value', (userCirclesSnapshot) => {
+      const userCircles = userCirclesSnapshot.val()
+      return !_.isEmpty(userCircles) ? replace('circles', {circles: userCircles}) : replace('login')
+    })
   }
 
   checkForAuth = () => auth && auth.currentUser === null && this.setState({retieving: true})

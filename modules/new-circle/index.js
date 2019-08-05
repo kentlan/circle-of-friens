@@ -98,6 +98,13 @@ export default class NewCircle extends React.Component {
               showCancelButton
               onSelectedItemsChange={this.selectMates}
               selectedItems={addedFriends}
+              selectToggleIconComponent={<Text>L</Text>}
+              searchIconComponent={<Text>-o</Text>}
+              selectedIconComponent={<Text>yo</Text>}
+              dropDownToggleIconUpComponent={<Text>/\</Text>}
+              dropDownToggleIconDownComponent={<Text>\/</Text>}
+              cancelIconComponent={<Text>(/)</Text>}
+              chipRemoveIconComponent={<Text>x</Text>}
             />
           ) : (
             <Text>loading ur friends</Text>

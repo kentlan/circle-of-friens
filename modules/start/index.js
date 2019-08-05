@@ -28,6 +28,9 @@ export default class Start extends React.Component {
 
   checkForCircles = (user) => {
     const {replace} = Actions
+    if (!user) {
+      return replace('login')
+    }
     usersRef.child(`${user.uid}/circles`).on('value', (userCirclesSnapshot) => {
       const userCircles = userCirclesSnapshot.val()
       return !_.isEmpty(userCircles) ? replace('circles', {circles: userCircles}) : replace('login')
@@ -42,7 +45,7 @@ export default class Start extends React.Component {
       <View style={styles.container}>
         <Text style={{fontSize: 30, marginBottom: 20}}>CIRCLE OF FRIENDS</Text>
         {retieving && <Text>retrieveing account data...</Text>}
-        {showLogout && <Button title="force log out" onPress={auth.signOut} />}
+        {showLogout && <Button title="force log out" onPress={() => auth.signOut()} />}
       </View>
     )
   }

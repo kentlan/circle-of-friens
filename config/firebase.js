@@ -1,5 +1,7 @@
 import * as firebase from 'firebase'
-import {Facebook, Permissions, Notifications} from 'expo'
+import {Notifications} from 'expo'
+import * as Facebook from 'expo-facebook'
+import * as Permissions from 'expo-permissions'
 import * as c from './constants'
 
 /* eslint-disable no-console */

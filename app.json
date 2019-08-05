@@ -1,5 +1,13 @@
 {
   "expo": {
-    "sdkVersion": "27.0.0"
+    "sdkVersion": "34.0.0",
+    "name": "CircleOfFriends",
+    "slug": "circleoffriends",
+    "version": "0.1.0",
+    "platforms": [
+      "android",
+      "ios"
+    ],
+    "description": ""
   }
 }
